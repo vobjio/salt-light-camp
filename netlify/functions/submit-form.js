@@ -1,8 +1,7 @@
 const { createClient } = require('@supabase-js/supabase-js');
-const emailjs = require('@emailjs/browser');
 
 exports.handler = async (event, context) => {
-  // Solo permitir peticiones POST
+  // Only allow POST requests
   if (event.httpMethod !== "POST") {
     return { statusCode: 405, body: "Method Not Allowed" };
   }
@@ -10,27 +9,27 @@ exports.handler = async (event, context) => {
   try {
     const data = JSON.parse(event.body);
     
-    // Inicializar Supabase usando las variables de entorno de Netlify
+    // Initialize Supabase using Environment Variables from Netlify Panel
     const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY);
 
-    // 1. Insertar en Supabase
+    // Insert data into the 'inscripciones' table
     const { error: sbError } = await supabase.from('inscripciones').insert([data]);
-    if (sbError) throw sbError;
-
-    // 2. Enviar Correos (Lógica de EmailJS)
-    // Nota: Para usar EmailJS en servidor, se recomienda usar su API REST 
-    // o la librería node. Aquí simulamos la llamada.
-    // Por simplicidad, puedes mantener EmailJS en el frontend si la llave PUB es pública,
-    // pero lo ideal es moverlo aquí.
+    
+    if (sbError) {
+      return { 
+        statusCode: 500, 
+        body: JSON.stringify({ error: sbError.message }) 
+      };
+    }
 
     return {
       statusCode: 200,
-      body: JSON.stringify({ message: "Registro exitoso" }),
+      body: JSON.stringify({ message: "Registration successful" }),
     };
   } catch (error) {
     return {
       statusCode: 500,
-      body: JSON.stringify({ error: error.message }),
+      body: JSON.stringify({ error: "Internal Server Error" }),
     };
   }
 };
