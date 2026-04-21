@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta http-equiv="X-Content-Type-Options" content="nosniff">
+  <meta http-equiv="X-Frame-Options" content="SAMEORIGIN">
+  <title>Salt & Light Summer Camp – Registro</title>
+  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    :root {
+      --accent: #1D2D50; --primary: #EB5757;
+      --yellow: #FDB813; --blue: #56CCF2; --bg: #FFFBEB;
+    }
+    body { background-color: var(--bg); }
+    .radio-checked { background-color: var(--accent); border-color: var(--accent); }
+    input:focus, select:focus, textarea:focus { border-color: var(--blue) !important; outline: none; box-shadow: 0 0 0 3px rgba(86,204,242,0.2); }
+    .step { display: none; } .step.active { display: block; }
+    .week-btn.selected { background-color: var(--blue); border-color: var(--blue); color: white; }
+    @keyframes fadeIn { from{opacity:0;transform:translateX(20px)} to{opacity:1;transform:translateX(0)} }
+    .step.active { animation: fadeIn .25s ease; }
+  </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-2 sm:p-4">
+
+<div class="max-w-5xl w-full bg-white sm:rounded-[40px] rounded-2xl shadow-2xl overflow-hidden flex flex-col md:flex-row border border-gray-100" style="min-height:640px">
+
+  <!-- SIDEBAR -->
+  <aside class="md:w-80 p-8 md:p-12 text-white flex flex-col justify-between shrink-0" style="background-color:var(--accent)">
+    <div>
+      <div class="w-16 h-16 md:w-20 md:h-20 rounded-3xl mb-6 flex items-center justify-center" style="background:rgba(255,255,255,.1)">
+        <svg class="w-10 h-10 md:w-12 md:h-12" fill="none" stroke="#FDB813" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      </div>
+      <h1 class="text-3xl md:text-4xl font-black tracking-tighter uppercase leading-none mb-4">
+        <span style="color:var(--yellow)">SALT</span>
+        <span class="px-2 py-0.5 rounded mx-1" style="background:var(--primary);font-size:1.5rem">AND</span>
+        <span style="color:var(--blue)">LIGHT</span><br>
+        <span class="text-2xl md:text-3xl mt-2 block opacity-90">SUMMER CAMP</span>
+      </h1>
+      <p class="text-xs opacity-75 leading-relaxed mt-4">Un espacio divertido y seguro donde los niños exploran, aprenden y crean recuerdos inolvidables este verano.</p>
+    </div>
+    <div class="mt-8 text-xs opacity-50 flex items-center gap-2">
+      <svg class="w-3 h-3" fill="none" stroke="#FDB813" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2"/></svg>
+      © 2026 Salt and Light
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <section class="flex-1 p-6 md:p-14 bg-white overflow-y-auto">
+
+    <!-- PROGRESS -->
+    <div class="mb-8 flex items-center justify-between">
+      <span id="stepLabel" class="text-xs uppercase tracking-widest font-bold opacity-40">Paso 1 de 4</span>
+      <div class="flex gap-2" id="dots"></div>
+    </div>
+
+    <!-- SUCCESS STATE -->
+    <div id="successState" class="hidden text-center py-12">
+      <div class="flex justify-center mb-6">
+        <div class="p-5 rounded-3xl" style="background:rgba(29,45,80,.08)">
+          <svg class="w-16 h-16" fill="none" stroke="var(--accent)" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>
+        </div>
+      </div>
+      <h2 class="text-3xl font-black uppercase tracking-tight mb-4" style="color:var(--accent)">¡Inscripción Exitosa!</h2>
+      <p class="text-gray-500 mb-8 leading-relaxed max-w-sm mx-auto">Gracias por confiar en <strong>Salt and Light Summer Camp</strong>. Hemos enviado un correo con la ubicación y más detalles.</p>
+      <button onclick="resetForm()" class="w-full max-w-xs py-4 rounded-2xl font-bold text-white uppercase tracking-widest text-sm" style="background:var(--primary)">Nueva Inscripción</button>
+    </div>
+
+    <!-- FORM -->
+    <form id="mainForm" onsubmit="return false">
+
+      <!-- STEP 1 -->
+      <div class="step active" id="step1">
+        <h3 class="text-xl font-bold uppercase tracking-tight mb-6" style="color:var(--accent)">Datos del Acampante</h3>
+        <div class="space-y-4">
+          <div>
+            <label class="text-xs font-bold uppercase tracking-wider block mb-1 ml-1">Nombre Completo del Niño/a *</label>
+            <input id="childName" type="text" placeholder="Ej. Alejandro García López" required class="w-full px-4 py-3 rounded-xl border-2 bg-gray-50" style="border-color:#e2e8f0"/>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label class="text-xs font-bold uppercase tracking-wider block mb-1 ml-1">Fecha de Nacimiento *</label>
+              <input id="birthDate" type="date" required class="w-full px-4 py-3 rounded-xl border-2 bg-gray-50" style="border-color:#e2e8f0"/>
+            </div>
+            <div>
+              <label class="text-xs font-bold uppercase tracking-wider block mb-1 ml-1">Edad *</label>
+              <input id="age" type="number" min="3" max="15" placeholder="Ej. 8" required class="w-full px-4 py-3 rounded-xl border-2 bg-gray-50" style="border-color:#e2e8f0"/>
+            </div>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label class="text-xs font-bold uppercase tracking-wider block mb-1 ml-1">Sexo *</label>
+              <div class="flex gap-4 py-2">
+                <label class="flex items-center gap-3 cursor-pointer">
+                  <input type="radio" name="gender" value="Niño" class="hidden" onchange="selectRadio(this,'genderDisplay1','genderDisplay2')"/>
+                  <div id="genderDisplay1" class="w-5 h-5 rounded-full border-2 flex items-center justify-center" style="border-color:#e2e8f0"></div>
+                  <span class="text-sm font-medium">Niño</span>
+                </label>
+                <label class="flex items-center gap-3 cursor-pointer">
+                  <input type="radio" name="gender" value="Niña" class="hidden" onchange="selectRadio(this,'genderDisplay2','genderDisplay1')"/>
+                  <div id="genderDisplay2" class="w-5 h-5 rounded-full border-2 flex items-center justify-center" style="border-color:#e2e8f0"></div>
+                  <span class="text-sm font-medium">Niña</span>
+                </label>
+              </div>
+            </div>
+            <div>
+              <label class="text-xs font-bold uppercase tracking-wider block mb-1 ml-1">Talla de Camisa *</label>
+              <select id="shirtSize" required class="w-full px-4 py-3 rounded-xl border-2 bg-gray-50" style="border-color:#e2e8f0">
+                <option value="">Seleccione...</option>
+                <option>2T</option><option>4T</option><option>6</option><option>8</option><option>10</option><option>12</option><option>14</option><option>S (Adulto)</option><option>M (Adulto)</option><option>L (Adulto)</option>
+              </select>
+            </div>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label class="text-xs font-bold uppercase tracking-wider block mb-1 ml-1">Institución Educativa *</label>
+              <input id="school" type="text" placeholder="Nombre del Colegio" required class="w-full px-4 py-3 rounded-xl border-2 bg-gray-50" style="border-color:#e2e8f0"/>
+            </div>
+            <div>
+              <label class="text-xs font-bold uppercase tracking-wider block mb-1 ml-1">A qué curso va a pasar *</label>
+              <input id="nextGrade" type="text" placeholder="Ej. 3ro de Primaria" required class="w-full px-4 py-3 rounded-xl border-2 bg-gray-50" style="border-color:#e2e8f0"/>
+            </div>
+          </div>
+          <div class="pt-2">
+            <button type="button" onclick="goNext(1)" class="w-full py-4 rounded-xl font-bold text-white uppercase tracking-widest text-sm shadow-lg" style="background:var(--primary)">
+              Siguiente →
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 2 -->
+      <div class="step" id="step2">
+        <h3 class="text-xl font-bold uppercase tracking-tight mb-6" style="color:var(--accent)">Salud e Información</h3>
+        <div class="space-y-4">
+          <div>
+            <label class="text-xs font-bold uppercase tracking-wider block mb-1 ml-1">Alergias (Deje en blanco si no tiene)</label>
+            <textarea id="allergies" placeholder="Ej. Maní, Penicilina..." rows="2" class="w-full px-4 py-3 rounded-xl border-2 bg-gray-50 resize-none" style="border-color:#e2e8f0"></textarea>
+          </div>
+          <div>
+            <label class="text-xs font-bold uppercase tracking-wider block mb-1 ml-1">Condición Médica a Notificar (Opcional)</label>
+            <textarea id="medicalCondition" placeholder="Ej. Asma, condiciones especiales..." rows="2" class="w-full px-4 py-3 rounded-xl border-2 bg-gray-50 resize-none" style="border-color:#e2e8f0"></textarea>
+          </div>
+          <div>
+            <label class="text-xs font-bold uppercase tracking-wider block mb-1 ml-1">Medicamentos (Opcional)</label>
+            <input id="medications" type="text" placeholder="Medicamento y dosis" class="w-full px-4 py-3 rounded-xl border-2 bg-gray-50" style="border-color:#e2e8f0"/>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label class="text-xs font-bold uppercase tracking-wider block mb-1 ml-1">¿Ha estado antes en Salt and Light? *</label>
+              <div class="flex gap-4 py-2">
+                <label class="flex items-center gap-3 cursor-pointer">
+                  <input type="radio" name="previousCamper" value="Sí" class="hidden" onchange="selectRadio(this,'prevD1','prevD2')"/>
+                  <div id="prevD1" class="w-5 h-5 rounded-full border-2 flex items-center justify-center" style="border-color:#e2e8f0"></div>
+                  <span class="text-sm font-medium">Sí</span>
+                </label>
+                <label class="flex items-center gap-3 cursor-pointer">
+                  <input type="radio" name="previousCamper" value="No" class="hidden" onchange="selectRadio(this,'prevD2','prevD1')"/>
+                  <div id="prevD2" class="w-5 h-5 rounded-full border-2 flex items-center justify-center" style="border-color:#e2e8f0"></div>
+                  <span class="text-sm font-medium">No</span>
+                </label>
+              </div>
+            </div>
+            <div>
+              <label class="text-xs font-bold uppercase tracking-wider block mb-1 ml-1">¿Permiso de fotos para redes? *</label>
+              <div class="flex gap-4 py-2">
+                <label class="flex items-center gap-3 cursor-pointer">
+                  <input type="radio" name="photoPermission" value="Sí" class="hidden" onchange="selectRadio(this,'photoD1','photoD2')"/>
+                  <div id="photoD1" class="w-5 h-5 rounded-full border-2 flex items-center justify-center" style="border-color:#e2e8f0"></div>
+                  <span class="text-sm font-medium">Sí</span>
+                </label>
+                <label class="flex items-center gap-3 cursor-pointer">
+                  <input type="radio" name="photoPermission" value="No" class="hidden" onchange="selectRadio(this,'photoD2','photoD1')"/>
+                  <div id="photoD2" class="w-5 h-5 rounded-full border-2 flex items-center justify-center" style="border-color:#e2e8f0"></div>
+                  <span class="text-sm font-medium">No</span>
+                </label>
+              </div>
+            </div>
+          </div>
+          <div class="flex gap-3 pt-2">
+            <button type="button" onclick="goBack(2)" class="flex-1 py-4 rounded-xl font-bold border-2 uppercase tracking-widest text-xs" style="color:var(--accent);border-color:#e2e8f0">Atrás</button>
+            <button type="button" onclick="goNext(2)" class="flex-[2] py-4 rounded-xl font-bold text-white uppercase tracking-widest text-sm shadow-lg" style="background:var(--primary)">Siguiente →</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 3 -->
+      <div class="step" id="step3">
+        <h3 class="text-xl font-bold uppercase tracking-tight mb-6" style="color:var(--accent)">Información de Contacto</h3>
+        <div class="space-y-4">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label class="text-xs font-bold uppercase tracking-wider block mb-1 ml-1">Padre / Tutor</label>
+              <input id="fatherName" type="text" placeholder="Nombre completo" class="w-full px-4 py-3 rounded-xl border-2 bg-gray-50" style="border-color:#e2e8f0"/>
+            </div>
+            <div>
+              <label class="text-xs font-bold uppercase tracking-wider block mb-1 ml-1">Madre / Tutora</label>
+              <input id="motherName" type="text" placeholder="Nombre completo" class="w-full px-4 py-3 rounded-xl border-2 bg-gray-50" style="border-color:#e2e8f0"/>
+            </div>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label class="text-xs font-bold uppercase tracking-wider block mb-1 ml-1">Teléfono (WhatsApp) *</label>
+              <input id="phone" type="tel" placeholder="+1 809 000 0000" required class="w-full px-4 py-3 rounded-xl border-2 bg-gray-50" style="border-color:#e2e8f0"/>
+            </div>
+            <div>
+              <label class="text-xs font-bold uppercase tracking-wider block mb-1 ml-1">Correo Electrónico *</label>
+              <input id="email" type="email" placeholder="ejemplo@correo.com" required class="w-full px-4 py-3 rounded-xl border-2 bg-gray-50" style="border-color:#e2e8f0"/>
+            </div>
+          </div>
+          <div>
+            <label class="text-xs font-bold uppercase tracking-wider block mb-1 ml-1">Iglesia (Opcional)</label>
+            <input id="church" type="text" placeholder="Nombre de la congregación" class="w-full px-4 py-3 rounded-xl border-2 bg-gray-50" style="border-color:#e2e8f0"/>
+          </div>
+          <div class="flex gap-3 pt-2">
+            <button type="button" onclick="goBack(3)" class="flex-1 py-4 rounded-xl font-bold border-2 uppercase tracking-widest text-xs" style="color:var(--accent);border-color:#e2e8f0">Atrás</button>
+            <button type="button" onclick="goNext(3)" class="flex-[2] py-4 rounded-xl font-bold text-white uppercase tracking-widest text-sm shadow-lg" style="background:var(--primary)">Siguiente →</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 4 -->
+      <div class="step" id="step4">
+        <h3 class="text-xl font-bold uppercase tracking-tight mb-6" style="color:var(--accent)">Selección de Semanas</h3>
+        <div>
+          <label class="text-xs font-bold uppercase tracking-widest block mb-3 ml-1">Seleccione una o múltiples semanas</label>
+          <div class="flex flex-wrap gap-3" id="weeksContainer">
+            <button type="button" onclick="toggleWeek(this,'Semana 1')" class="week-btn flex-1 min-w-[70px] h-16 rounded-xl border-2 font-bold text-xs transition-all" style="border-color:#e2e8f0">S1</button>
+            <button type="button" onclick="toggleWeek(this,'Semana 2')" class="week-btn flex-1 min-w-[70px] h-16 rounded-xl border-2 font-bold text-xs transition-all" style="border-color:#e2e8f0">S2</button>
+            <button type="button" onclick="toggleWeek(this,'Semana 3')" class="week-btn flex-1 min-w-[70px] h-16 rounded-xl border-2 font-bold text-xs transition-all" style="border-color:#e2e8f0">S3</button>
+            <button type="button" onclick="toggleWeek(this,'Semana 4')" class="week-btn flex-1 min-w-[70px] h-16 rounded-xl border-2 font-bold text-xs transition-all" style="border-color:#e2e8f0">S4</button>
+            <button type="button" onclick="toggleWeek(this,'Semana 5')" class="week-btn flex-1 min-w-[70px] h-16 rounded-xl border-2 font-bold text-xs transition-all" style="border-color:#e2e8f0">S5</button>
+          </div>
+          <p id="weeksError" class="text-red-500 text-xs mt-2 hidden">Selecciona al menos una semana</p>
+        </div>
+        <div class="flex gap-3 mt-8">
+          <button type="button" onclick="goBack(4)" class="flex-1 py-4 rounded-xl font-bold border-2 uppercase tracking-widest text-xs" style="color:var(--accent);border-color:#e2e8f0">Atrás</button>
+          <button type="button" id="submitBtn" onclick="submitForm()" class="flex-[2] py-4 rounded-xl font-bold text-white uppercase tracking-widest text-sm shadow-xl flex items-center justify-center gap-2" style="background:var(--primary)">
+            Finalizar Registro ❤️
+          </button>
+        </div>
+      </div>
+
+    </form>
+  </section>
+</div>
+
+<script>
+  // ===== CONFIGURATION - REPLACE THESE VALUES =====
+  const SUPABASE_URL    = 'https://cjnrezbyhprwxwpomhad.supabase.co';
+  const SUPABASE_KEY    = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNqbnJlemJ5aHByd3h3cG9taGFkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY3MTU2NDcsImV4cCI6MjA5MjI5MTY0N30.XGe0DdK9TfU3sL_D9RxCQsSgOlDuDW7NjogSuaM8EFI';
+  const EMAILJS_PUB     = 'rIAkHXe6F7yfMYIVb';
+  const EMAILJS_SVC     = 'service_r0nl0qd';
+  const EMAILJS_TPL_P   = 'template_rr5qu2c';
+  const EMAILJS_TPL_A   = 'template_n5xbksi';
+  // ================================================
+
+  const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+  emailjs.init(EMAILJS_PUB);
+
+  let currentStep = 1;
+  let selectedWeeks = [];
+
+  // Build progress dots
+  const dotsEl = document.getElementById('dots');
+  for(let i=1;i<=4;i++){
+    const d = document.createElement('div');
+    d.id = 'dot'+i;
+    d.className = 'h-2 rounded-full transition-all duration-300';
+    d.style.backgroundColor = '#e2e8f0';
+    d.style.width = '0.5rem';
+    dotsEl.appendChild(d);
+  }
+  updateDots();
+
+  function updateDots(){
+    document.getElementById('stepLabel').textContent = `Paso ${currentStep} de 4`;
+    for(let i=1;i<=4;i++){
+      const d = document.getElementById('dot'+i);
+      if(i===currentStep){d.style.backgroundColor='var(--primary)';d.style.width='1.5rem';}
+      else{d.style.backgroundColor='#e2e8f0';d.style.width='0.5rem';}
+    }
+  }
+
+  function selectRadio(input, activeId, inactiveId){
+    const active = document.getElementById(activeId);
+    const inactive = document.getElementById(inactiveId);
+    active.style.backgroundColor = 'var(--accent)';
+    active.style.borderColor = 'var(--accent)';
+    active.innerHTML = '<div class="w-2 h-2 rounded-full bg-white"></div>';
+    inactive.style.backgroundColor = '';
+    inactive.style.borderColor = '#e2e8f0';
+    inactive.innerHTML = '';
+  }
+
+  function toggleWeek(btn, week){
+    const idx = selectedWeeks.indexOf(week);
+    if(idx > -1){ selectedWeeks.splice(idx,1); btn.classList.remove('selected'); btn.style.borderColor='#e2e8f0'; }
+    else{ selectedWeeks.push(week); btn.classList.add('selected'); }
+    document.getElementById('weeksError').classList.toggle('hidden', selectedWeeks.length > 0);
+  }
+
+  function sanitize(str){ return String(str||'').replace(/[<>"]/g,'').trim(); }
+
+  function goNext(from){
+    if(from===1){
+      const gender = document.querySelector('input[name="gender"]:checked');
+      if(!document.getElementById('childName').value || !document.getElementById('birthDate').value ||
+         !document.getElementById('age').value || !gender ||
+         !document.getElementById('shirtSize').value || !document.getElementById('school').value ||
+         !document.getElementById('nextGrade').value){
+        alert('Por favor complete todos los campos obligatorios.'); return;
+      }
+    }
+    if(from===2){
+      const prev = document.querySelector('input[name="previousCamper"]:checked');
+      const photo = document.querySelector('input[name="photoPermission"]:checked');
+      if(!prev||!photo){ alert('Por favor seleccione las opciones de Campista y Permiso de Fotos.'); return; }
+    }
+    if(from===3){
+      const father = document.getElementById('fatherName').value;
+      const mother = document.getElementById('motherName').value;
+      const phone = document.getElementById('phone').value;
+      const email = document.getElementById('email').value;
+      if((!father && !mother) || !phone || !email){ alert('Por favor complete los campos de contacto.'); return; }
+      if(!email.includes('@')){ alert('Por favor ingrese un correo válido.'); return; }
+    }
+    document.getElementById('step'+from).classList.remove('active');
+    currentStep = from + 1;
+    document.getElementById('step'+currentStep).classList.add('active');
+    updateDots();
+  }
+
+  function goBack(from){
+    document.getElementById('step'+from).classList.remove('active');
+    currentStep = from - 1;
+    document.getElementById('step'+currentStep).classList.add('active');
+    updateDots();
+  }
+
+  async function submitForm(){
+    if(selectedWeeks.length === 0){
+      document.getElementById('weeksError').classList.remove('hidden'); return;
+    }
+    const btn = document.getElementById('submitBtn');
+    btn.disabled = true;
+    btn.textContent = 'Enviando...';
+
+    const data = {
+      child_name: sanitize(document.getElementById('childName').value),
+      birth_date: sanitize(document.getElementById('birthDate').value),
+      age: sanitize(document.getElementById('age').value),
+      gender: sanitize(document.querySelector('input[name="gender"]:checked')?.value),
+      shirt_size: sanitize(document.getElementById('shirtSize').value),
+      school: sanitize(document.getElementById('school').value),
+      next_grade: sanitize(document.getElementById('nextGrade').value),
+      allergies: sanitize(document.getElementById('allergies').value),
+      medical_condition: sanitize(document.getElementById('medicalCondition').value),
+      medications: sanitize(document.getElementById('medications').value),
+      photo_permission: sanitize(document.querySelector('input[name="photoPermission"]:checked')?.value),
+      previous_camper: sanitize(document.querySelector('input[name="previousCamper"]:checked')?.value),
+      father_name: sanitize(document.getElementById('fatherName').value),
+      mother_name: sanitize(document.getElementById('motherName').value),
+      phone: sanitize(document.getElementById('phone').value),
+      email: sanitize(document.getElementById('email').value),
+      church: sanitize(document.getElementById('church').value),
+      weeks: selectedWeeks.join(', ')
+    };
+
+    try {
+      const { error } = await supabase.from('inscripciones').insert([data]);
+      if(error) throw error;
+
+      // Send parent email
+      await emailjs.send(EMAILJS_SVC, EMAILJS_TPL_P, {
+        to_email: data.email,
+        to_name: data.father_name || data.mother_name || 'Tutor',
+        child_name: data.child_name,
+        weeks: data.weeks
+      });
+
+      // Send admin notification
+      await emailjs.send(EMAILJS_SVC, EMAILJS_TPL_A, {
+        child_name: data.child_name,
+        age: data.age,
+        gender: data.gender,
+        school: data.school,
+        next_grade: data.next_grade,
+        phone: data.phone,
+        to_email: data.email,
+        weeks: data.weeks,
+        allergies: data.allergies || 'Ninguna',
+        father_name: data.father_name || '-',
+        mother_name: data.mother_name || '-'
+      });
+
+      document.getElementById('mainForm').classList.add('hidden');
+      document.getElementById('successState').classList.remove('hidden');
+
+    } catch(err){
+      console.error(err);
+      alert('Error al enviar. Por favor intente de nuevo.');
+      btn.disabled = false;
+      btn.innerHTML = 'Finalizar Registro ❤️';
+    }
+  }
+
+  function resetForm(){
+    document.getElementById('mainForm').reset();
+    document.getElementById('successState').classList.add('hidden');
+    document.getElementById('mainForm').classList.remove('hidden');
+    selectedWeeks = [];
+    document.querySelectorAll('.week-btn').forEach(b=>{ b.classList.remove('selected'); b.style.borderColor='#e2e8f0'; });
+    ['genderDisplay1','genderDisplay2','prevD1','prevD2','photoD1','photoD2'].forEach(id=>{
+      const el = document.getElementById(id);
+      if(el){ el.style.backgroundColor=''; el.style.borderColor='#e2e8f0'; el.innerHTML=''; }
+    });
+    currentStep = 1;
+    document.querySelectorAll('.step').forEach(s=>s.classList.remove('active'));
+    document.getElementById('step1').classList.add('active');
+    updateDots();
+  }
+</script>
+</body>
+</html>
