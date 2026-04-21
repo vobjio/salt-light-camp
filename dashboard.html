@@ -136,7 +136,7 @@
   const SUPABASE_URL = 'https://cjnrezbyhprwxwpomhad.supabase.co';
   const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNqbnJlemJ5aHByd3h3cG9taGFkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY3MTU2NDcsImV4cCI6MjA5MjI5MTY0N30.XGe0DdK9TfU3sL_D9RxCQsSgOlDuDW7NjogSuaM8EFI';
   // Password stored as char codes to avoid special char parsing issues
-  const PWD_CHARS = [83,97,108,116,38,108,105,103,104,116,48,53,48,49]; // Salt&light0501
+  const CORRECT_PWD = 'Saltlight2026';
   // ==================
 
   let supabase, allData = [], isLoggedIn = false;
@@ -147,9 +147,6 @@
   } catch(e) {
     showError('Error al inicializar Supabase: ' + e.message);
   }
-
-  // Build correct password from char codes
-  const CORRECT_PWD = PWD_CHARS.map(c => String.fromCharCode(c)).join('');
 
   // Login button and Enter key
   document.getElementById('loginBtn').addEventListener('click', login);
