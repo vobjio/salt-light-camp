@@ -6,7 +6,7 @@
   <meta http-equiv="X-Content-Type-Options" content="nosniff">
   <meta http-equiv="X-Frame-Options" content="SAMEORIGIN">
   <title>Salt & Light Summer Camp – Registro</title>
-  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+  <!-- EmailJS Only (Supabase JS is removed because it's now handled by the server) -->
   <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
@@ -15,7 +15,25 @@
       --yellow: #FDB813; --blue: #56CCF2; --bg: #FFFBEB;
     }
     body { background-color: var(--bg); }
-    .radio-checked { background-color: var(--accent); border-color: var(--accent); }
+    .radio-custom-checked { 
+      background-color: var(--accent) !important; 
+      border-color: var(--accent) !important; 
+    }
+    .radio-custom-checked::after {
+      content: '';
+      width: 8px;
+      height: 8px;
+      background: white;
+      border-radius: 50%;
+      display: block;
+      position: absolute;
+    }
+    .radio-circle {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
     input:focus, select:focus, textarea:focus { border-color: var(--blue) !important; outline: none; box-shadow: 0 0 0 3px rgba(86,204,242,0.2); }
     .step { display: none; } .step.active { display: block; }
     .week-btn.selected { background-color: var(--blue); border-color: var(--blue); color: white; }
@@ -64,7 +82,7 @@
         </div>
       </div>
       <h2 class="text-3xl font-black uppercase tracking-tight mb-4" style="color:var(--accent)">¡Inscripción Exitosa!</h2>
-      <p class="text-gray-500 mb-8 leading-relaxed max-w-sm mx-auto">Gracias por confiar en <strong>Salt and Light Summer Camp</strong>. Hemos enviado un correo con la ubicación y más detalles.</p>
+      <p class="text-gray-500 mb-8 leading-relaxed max-w-sm mx-auto">Gracias por confiar en <strong class="text-black">Salt and Light Summer Camp</strong>. Hemos enviado un correo con los detalles.</p>
       <button onclick="resetForm()" class="w-full max-w-xs py-4 rounded-2xl font-bold text-white uppercase tracking-widest text-sm" style="background:var(--primary)">Nueva Inscripción</button>
     </div>
 
@@ -93,14 +111,14 @@
             <div>
               <label class="text-xs font-bold uppercase tracking-wider block mb-1 ml-1">Sexo *</label>
               <div class="flex gap-4 py-2">
-                <label class="flex items-center gap-3 cursor-pointer">
-                  <input type="radio" name="gender" value="Niño" class="hidden" onchange="selectRadio(this,'genderDisplay1','genderDisplay2')"/>
-                  <div id="genderDisplay1" class="w-5 h-5 rounded-full border-2 flex items-center justify-center" style="border-color:#e2e8f0"></div>
+                <label class="flex items-center gap-3 cursor-pointer group">
+                  <input type="radio" name="gender" value="Niño" class="hidden" onchange="updateRadioVisuals('gender')"/>
+                  <div class="radio-circle w-5 h-5 rounded-full border-2" style="border-color:#e2e8f0"></div>
                   <span class="text-sm font-medium">Niño</span>
                 </label>
-                <label class="flex items-center gap-3 cursor-pointer">
-                  <input type="radio" name="gender" value="Niña" class="hidden" onchange="selectRadio(this,'genderDisplay2','genderDisplay1')"/>
-                  <div id="genderDisplay2" class="w-5 h-5 rounded-full border-2 flex items-center justify-center" style="border-color:#e2e8f0"></div>
+                <label class="flex items-center gap-3 cursor-pointer group">
+                  <input type="radio" name="gender" value="Niña" class="hidden" onchange="updateRadioVisuals('gender')"/>
+                  <div class="radio-circle w-5 h-5 rounded-full border-2" style="border-color:#e2e8f0"></div>
                   <span class="text-sm font-medium">Niña</span>
                 </label>
               </div>
@@ -151,14 +169,14 @@
             <div>
               <label class="text-xs font-bold uppercase tracking-wider block mb-1 ml-1">¿Ha estado antes en Salt and Light? *</label>
               <div class="flex gap-4 py-2">
-                <label class="flex items-center gap-3 cursor-pointer">
-                  <input type="radio" name="previousCamper" value="Sí" class="hidden" onchange="selectRadio(this,'prevD1','prevD2')"/>
-                  <div id="prevD1" class="w-5 h-5 rounded-full border-2 flex items-center justify-center" style="border-color:#e2e8f0"></div>
+                <label class="flex items-center gap-3 cursor-pointer group">
+                  <input type="radio" name="previousCamper" value="Sí" class="hidden" onchange="updateRadioVisuals('previousCamper')"/>
+                  <div class="radio-circle w-5 h-5 rounded-full border-2" style="border-color:#e2e8f0"></div>
                   <span class="text-sm font-medium">Sí</span>
                 </label>
-                <label class="flex items-center gap-3 cursor-pointer">
-                  <input type="radio" name="previousCamper" value="No" class="hidden" onchange="selectRadio(this,'prevD2','prevD1')"/>
-                  <div id="prevD2" class="w-5 h-5 rounded-full border-2 flex items-center justify-center" style="border-color:#e2e8f0"></div>
+                <label class="flex items-center gap-3 cursor-pointer group">
+                  <input type="radio" name="previousCamper" value="No" class="hidden" onchange="updateRadioVisuals('previousCamper')"/>
+                  <div class="radio-circle w-5 h-5 rounded-full border-2" style="border-color:#e2e8f0"></div>
                   <span class="text-sm font-medium">No</span>
                 </label>
               </div>
@@ -166,14 +184,14 @@
             <div>
               <label class="text-xs font-bold uppercase tracking-wider block mb-1 ml-1">¿Permiso de fotos para redes? *</label>
               <div class="flex gap-4 py-2">
-                <label class="flex items-center gap-3 cursor-pointer">
-                  <input type="radio" name="photoPermission" value="Sí" class="hidden" onchange="selectRadio(this,'photoD1','photoD2')"/>
-                  <div id="photoD1" class="w-5 h-5 rounded-full border-2 flex items-center justify-center" style="border-color:#e2e8f0"></div>
+                <label class="flex items-center gap-3 cursor-pointer group">
+                  <input type="radio" name="photoPermission" value="Sí" class="hidden" onchange="updateRadioVisuals('photoPermission')"/>
+                  <div class="radio-circle w-5 h-5 rounded-full border-2" style="border-color:#e2e8f0"></div>
                   <span class="text-sm font-medium">Sí</span>
                 </label>
-                <label class="flex items-center gap-3 cursor-pointer">
-                  <input type="radio" name="photoPermission" value="No" class="hidden" onchange="selectRadio(this,'photoD2','photoD1')"/>
-                  <div id="photoD2" class="w-5 h-5 rounded-full border-2 flex items-center justify-center" style="border-color:#e2e8f0"></div>
+                <label class="flex items-center gap-3 cursor-pointer group">
+                  <input type="radio" name="photoPermission" value="No" class="hidden" onchange="updateRadioVisuals('photoPermission')"/>
+                  <div class="radio-circle w-5 h-5 rounded-full border-2" style="border-color:#e2e8f0"></div>
                   <span class="text-sm font-medium">No</span>
                 </label>
               </div>
@@ -248,16 +266,12 @@
 </div>
 
 <script>
-  // ===== CONFIGURATION - REPLACE THESE VALUES =====
-  const SUPABASE_URL    = 'https://cjnrezbyhprwxwpomhad.supabase.co';
-  const SUPABASE_KEY    = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNqbnJlemJ5aHByd3h3cG9taGFkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY3MTU2NDcsImV4cCI6MjA5MjI5MTY0N30.XGe0DdK9TfU3sL_D9RxCQsSgOlDuDW7NjogSuaM8EFI';
+  // ===== CONFIGURATION - EmailJS Only =====
   const EMAILJS_PUB     = 'rIAkHXe6F7yfMYIVb';
   const EMAILJS_SVC     = 'service_r0nl0qd';
   const EMAILJS_TPL_P   = 'template_rr5qu2c';
   const EMAILJS_TPL_A   = 'template_n5xbksi';
-  // ================================================
 
-  const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
   emailjs.init(EMAILJS_PUB);
 
   let currentStep = 1;
@@ -284,15 +298,13 @@
     }
   }
 
-  function selectRadio(input, activeId, inactiveId){
-    const active = document.getElementById(activeId);
-    const inactive = document.getElementById(inactiveId);
-    active.style.backgroundColor = 'var(--accent)';
-    active.style.borderColor = 'var(--accent)';
-    active.innerHTML = '<div class="w-2 h-2 rounded-full bg-white"></div>';
-    inactive.style.backgroundColor = '';
-    inactive.style.borderColor = '#e2e8f0';
-    inactive.innerHTML = '';
+  function updateRadioVisuals(groupName) {
+    const radios = document.querySelectorAll(`input[name="${groupName}"]`);
+    radios.forEach(radio => {
+      const circle = radio.nextElementSibling;
+      if (radio.checked) circle.classList.add('radio-custom-checked');
+      else circle.classList.remove('radio-custom-checked');
+    });
   }
 
   function toggleWeek(btn, week){
@@ -370,10 +382,15 @@
     };
 
     try {
-      const { error } = await supabase.from('inscripciones').insert([data]);
-      if(error) throw error;
+      // CALL TO NETLIFY FUNCTION (Secured)
+      const response = await fetch('/.netlify/functions/submit-form', {
+        method: 'POST',
+        body: JSON.stringify(data),
+      });
 
-      // Send parent email
+      if (!response.ok) throw new Error('Error in server');
+
+      // If server responded OK, send emails from the client (EmailJS is public)
       await emailjs.send(EMAILJS_SVC, EMAILJS_TPL_P, {
         to_email: data.email,
         to_name: data.father_name || data.mother_name || 'Tutor',
@@ -381,7 +398,6 @@
         weeks: data.weeks
       });
 
-      // Send admin notification
       await emailjs.send(EMAILJS_SVC, EMAILJS_TPL_A, {
         child_name: data.child_name,
         age: data.age,
@@ -413,9 +429,12 @@
     document.getElementById('mainForm').classList.remove('hidden');
     selectedWeeks = [];
     document.querySelectorAll('.week-btn').forEach(b=>{ b.classList.remove('selected'); b.style.borderColor='#e2e8f0'; });
-    ['genderDisplay1','genderDisplay2','prevD1','prevD2','photoD1','photoD2'].forEach(id=>{
-      const el = document.getElementById(id);
-      if(el){ el.style.backgroundColor=''; el.style.borderColor='#e2e8f0'; el.innerHTML=''; }
+    ['gender','previousCamper','photoPermission'].forEach(group => {
+      const radios = document.querySelectorAll(`input[name="${group}"]`);
+      radios.forEach(r => {
+        r.checked = false;
+        r.nextElementSibling.classList.remove('radio-custom-checked');
+      });
     });
     currentStep = 1;
     document.querySelectorAll('.step').forEach(s=>s.classList.remove('active'));
